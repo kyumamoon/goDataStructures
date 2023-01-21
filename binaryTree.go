@@ -40,33 +40,38 @@ func (t *Tree) Insert(n *node) {
 	}
 }
 
-func SearchNode(n *node, target int) bool {
+func SearchNode(current, parent *node, target int) (bool, *node, *node) {
 
-	if target > n.data {
-		if n.right != nil {
-			return SearchNode(n.right, target)
+	if target > current.data {
+		if current.right != nil {
+			return SearchNode(current.right, current, target)
 		} else {
-			return false
+			return false, nil, nil
 		}
-	} else if target < n.data {
-		if n.left != nil {
-			return SearchNode(n.left, target)
+	} else if target < current.data {
+		if current.left != nil {
+			return SearchNode(current.left, current, target)
 		} else {
-			return false
+			return false, nil, nil
 		}
 	}
 
-	return true
+	return true, current, parent
 
 }
 
-func (t *Tree) SearchTree(target int) bool {
+// SearchTree searches for the node that has the target data, returns bool if found/not found and the node and its parent if true.
+func (t *Tree) SearchTree(target int) (bool, *node, *node) {
 	if t.root == nil {
-		return false
+		return false, nil, nil
 	}
 	current := t.root
 
-	return SearchNode(current, target)
+	return SearchNode(current, nil, target)
+}
+
+func (t *Tree) DeleteNode(target int) {
+
 }
 
 func main() {
@@ -83,5 +88,5 @@ func main() {
 	myTree.Insert(&node{data: 88})
 	myTree.Insert(&node{data: 276})
 
-	fmt.Println(myTree.SearchTree(76))
+	fmt.Println(myTree.SearchTree(0))
 }
