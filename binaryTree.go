@@ -14,6 +14,7 @@ type Tree struct {
 	root *node
 }
 
+// Insert inserts a node into a binary tree.
 func (t *Tree) Insert(n *node) {
 	if t.root != nil {
 		current := t.root
@@ -40,6 +41,7 @@ func (t *Tree) Insert(n *node) {
 	}
 }
 
+// SearchNode searches the node branch for the target value and returns true/false if found and pointer to the node containing value and a pointer to the node's parent.
 func SearchNode(current, parent *node, target int) (bool, *node, *node) {
 
 	if target > current.data {
@@ -80,25 +82,24 @@ func SearchNodeBranchForEmpty(n *node) *node {
 	}
 }
 
+// DeleteNode deletes a node from the binary tree and restitch the children to correct order.
 func (t *Tree) DeleteNode(target, targetParent *node) {
+	// (PLAN)
+	// First search left child node's right branch for child (with no children) with a value greater than its value.
+	// Else, search right child node's left branch for child (with no children).
 
+	// Check if target node is a root or child.
 	if targetParent == nil {
-		// Deleting Head
+		// Deleting Root.
 
-		// (PLAN)
-		// First search left child node's right branch for child (with no children) with a value greater than its value.
-		// Else, search right child node's left branch for child (with no children).
+		// Check if root node has any children.
 
-		// Check if head node has any children.
+		// If both are branches are not empty.
 		if target.left != nil && target.right != nil {
-			// If both are branches are not empty.
 
 			current := target.left
-
 			childlessChild := SearchNodeBranchForEmpty(current)
-
-			t.root = childlessChild
-			// Replace deletion with childlessChild
+			t.root = childlessChild // Replace deletion with childlessChild
 
 		} else {
 			// Make either left or right branch node the new root.
@@ -110,28 +111,31 @@ func (t *Tree) DeleteNode(target, targetParent *node) {
 		}
 
 	} else {
-		// If not head
+
+		// Deleting a child from a root.
+
 		// Figure out whether target is on left or right side of parent.
 		targetLeftRight := 0
 
-		{
-			if target.data > targetParent.data {
-				targetLeftRight = 1
-			} else {
-				targetLeftRight = 0
-			}
+		if target.data > targetParent.data {
+			targetLeftRight = 1
+		} else {
+			targetLeftRight = 0
 		}
 
-		// Proceed with plan
-
 		// Check if target has any children.
+
 		// If target has two children.
 		if target.left != nil && target.right != nil {
-
+			// Only search the left child's right branch.
 			current := target.left
 
 			childlessChild := SearchNodeBranchForEmpty(current)
 
+			// Replace the deleted node with the childLess child found above.
+			// Find whether the deleted node was on left or right branch of parent node.
+			// Then, replace the parent's branch with childlessChild.
+			// Stitch the target's original left branch onto the childlessChild
 			if targetLeftRight == 0 {
 				targetParent.left = childlessChild
 				childlessChild.left = target.left
@@ -140,11 +144,10 @@ func (t *Tree) DeleteNode(target, targetParent *node) {
 				targetParent.right = childlessChild
 				childlessChild.left = target.left
 			}
-			// Replace deletion with childlessChild
 
 		} else {
 			// Target has an empty left or right child
-			// Make either left or right branch node the new root.
+			// Make either left or right non-empty branch node the new target replacement.
 			if target.left != nil {
 				if targetLeftRight == 0 {
 					targetParent.left = target.left
@@ -160,37 +163,6 @@ func (t *Tree) DeleteNode(target, targetParent *node) {
 			}
 		}
 
-		/*if target.left == nil || target.right == nil {
-		  	// Make either left or right branch node the new root.
-		  	if target.left != nil {
-		  		if targetLeftRight == 0 {
-		  			targetParent.left = target.left
-		  		} else {
-		  			targetParent.right = target.left
-		  		}
-		  	} else {
-		  		if targetLeftRight == 0 {
-		  			targetParent.left = target.right
-		  		} else {
-		  			targetParent.right = target.right
-		  		}
-		  	}
-		  } else if target.left != nil && target.right != nil {
-		  	// Do plan if target has two children.
-
-		  	current := target.left
-
-		  	childlessChild := SearchNodeBranchForEmpty(current)
-
-		  	if targetLeftRight == 0 {
-		  		targetParent.left = childlessChild
-
-		  	} else {
-		  		targetParent.right = childlessChild
-		  	}
-		  	// Replace deletion with childlessChild
-
-		  }*/
 	}
 }
 
