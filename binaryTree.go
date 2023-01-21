@@ -1,8 +1,6 @@
 package main
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type node struct {
 	data  int
@@ -14,8 +12,7 @@ type Tree struct {
 	root *node
 }
 
-// Insert method inserts a node into a binary tree.
-func (t *Tree) Insert(n *node) {
+func (t *Tree) InsertNode(n *node) {
 	if t.root != nil {
 		current := t.root
 
@@ -41,18 +38,17 @@ func (t *Tree) Insert(n *node) {
 	}
 }
 
-// SearchNode function searches the node branch for the target value and returns true/false if found and pointer to the node containing value and a pointer to the node's parent.
-func SearchNode(current, parent *node, target int) (bool, *node, *node) {
+func SearchNode(current, parent *node, targetData int) (bool, *node, *node) {
 
-	if target > current.data {
+	if targetData > current.data {
 		if current.right != nil {
-			return SearchNode(current.right, current, target)
+			return SearchNode(current.right, current, targetData)
 		} else {
 			return false, nil, nil
 		}
-	} else if target < current.data {
+	} else if targetData < current.data {
 		if current.left != nil {
-			return SearchNode(current.left, current, target)
+			return SearchNode(current.left, current, targetData)
 		} else {
 			return false, nil, nil
 		}
@@ -62,54 +58,47 @@ func SearchNode(current, parent *node, target int) (bool, *node, *node) {
 
 }
 
-// SearchTree method searches for the node that has the target data, returns bool if found/not found and the node and its parent if true.
-func (t *Tree) SearchTree(target int) (bool, *node, *node) {
+func (t *Tree) SearchTree(targetData int) (bool, *node, *node) {
 	if t.root == nil {
 		return false, nil, nil
 	}
-	current := t.root
 
-	return SearchNode(current, nil, target)
+	return SearchNode(t.root, nil, targetData)
 }
 
-// SearchNodeBranchForEmpty function recursively searches for an empty child of a branch.
-func SearchNodeBranchForEmpty(n *node) *node {
+func findChildlessChild(n *node) *node {
 	if n.left == nil && n.right == nil {
 		return n
 	} else {
-
-		return SearchNodeBranchForEmpty(n.right)
-
+		return findChildlessChild(n.right)
 	}
 }
 
-// DeleteNode method deletes a node from the binary tree and restitch the children to correct order.
-func (t *Tree) DeleteNode(target, targetParent *node) {
+func (t *Tree) DeleteNode(targetNode, targetNodeParent *node) {
 	// (PLAN)
 	// First search left child node's right branch for child (with no children) with a value greater than its value.
 	// Else, search right child node's left branch for child (with no children).
 
 	// Check if target node is a root or child.
-	if targetParent == nil {
+	if targetNodeParent == nil {
 		// Deleting Root.
 
 		// Check if root node has any children.
 
 		// If both are branches are not empty.
-		if target.left != nil && target.right != nil {
+		if targetNode.left != nil && targetNode.right != nil {
 
-			current := target.left
-			childlessChild := SearchNodeBranchForEmpty(current)
+			childlessChild := findChildlessChild(targetNode.left)
 			t.root = childlessChild // Replace deletion with childlessChild
 
-		} else if target.left == nil && target.right == nil {
+		} else if targetNode.left == nil && targetNode.right == nil {
 			t.root = nil
 		} else {
 			// Make either left or right branch node the new root.
-			if target.left != nil {
-				t.root = target.left
+			if targetNode.left != nil {
+				t.root = targetNode.left
 			} else {
-				t.root = target.right
+				t.root = targetNode.right
 			}
 		}
 
@@ -118,57 +107,56 @@ func (t *Tree) DeleteNode(target, targetParent *node) {
 		// Deleting a child from a root.
 
 		// Figure out whether target is on left or right side of parent.
-		targetLeftRight := 0
+		// 0 = left branch, 1 = right branch
+		targetPosition := 0
 
-		if target.data > targetParent.data {
-			targetLeftRight = 1
+		if targetNode.data > targetNodeParent.data {
+			targetPosition = 1
 		} else {
-			targetLeftRight = 0
+			targetPosition = 0
 		}
 
 		// Check if target has any children.
 
 		// If target has two children.
-		if target.left != nil && target.right != nil {
+		if targetNode.left != nil && targetNodeParent.right != nil {
 			// Only search the left child's right branch.
-			current := target.left
-
-			childlessChild := SearchNodeBranchForEmpty(current)
+			childlessChild := findChildlessChild(targetNode.left)
 
 			// Replace the deleted node with the childLess child found above.
 			// Find whether the deleted node was on left or right branch of parent node.
 			// Then, replace the parent's branch with childlessChild.
 			// Stitch the target's original left branch onto the childlessChild
-			if targetLeftRight == 0 {
-				targetParent.left = childlessChild
-				childlessChild.left = target.left
+			if targetPosition == 0 {
+				targetNodeParent.left = childlessChild
+				childlessChild.left = targetNode.left
 
 			} else {
-				targetParent.right = childlessChild
-				childlessChild.left = target.left
+				targetNodeParent.right = childlessChild
+				childlessChild.left = targetNode.left
 			}
 
-		} else if target.left == nil && target.right == nil {
+		} else if targetNode.left == nil && targetNode.right == nil {
 			// If target has no children, replace parent's branch with nil.
-			if targetLeftRight == 0 {
-				targetParent.left = nil
+			if targetPosition == 0 {
+				targetNodeParent.left = nil
 			} else {
-				targetParent.right = nil
+				targetNodeParent.right = nil
 			}
 		} else {
 			// Target has an empty left or right child
 			// Make either left or right non-empty branch node the new target replacement.
-			if target.left != nil {
-				if targetLeftRight == 0 {
-					targetParent.left = target.left
+			if targetNode.left != nil {
+				if targetPosition == 0 {
+					targetNodeParent.left = targetNode.left
 				} else {
-					targetParent.right = target.left
+					targetNodeParent.right = targetNode.left
 				}
 			} else {
-				if targetLeftRight == 0 {
-					targetParent.left = target.right
+				if targetPosition == 0 {
+					targetNodeParent.left = targetNode.right
 				} else {
-					targetParent.right = target.right
+					targetNodeParent.right = targetNode.right
 				}
 			}
 		}
@@ -178,24 +166,12 @@ func (t *Tree) DeleteNode(target, targetParent *node) {
 
 func main() {
 	myTree := Tree{}
-	myTree.Insert(&node{data: 44})
-	myTree.Insert(&node{data: 17})
-	myTree.Insert(&node{data: 32})
-	myTree.Insert(&node{data: 28})
-	myTree.Insert(&node{data: 29})
-	myTree.Insert(&node{data: 88})
-	myTree.Insert(&node{data: 65})
-	myTree.Insert(&node{data: 54})
-	myTree.Insert(&node{data: 82})
-	myTree.Insert(&node{data: 76})
-	myTree.Insert(&node{data: 80})
-	myTree.Insert(&node{data: 78})
-	myTree.Insert(&node{data: 97})
+	x, y, z, w := &node{data: 1}, &node{data: 1}, &node{data: 2}, &node{data: 3}
+	myTree.InsertNode(x)
+	myTree.InsertNode(y)
+	myTree.InsertNode(z)
+	myTree.InsertNode(w)
 
-	x, y, z := myTree.SearchTree(32)
-	fmt.Println(x, y, z)
-	myTree.DeleteNode(y, z)
-
-	x, y, z = myTree.SearchTree(28)
-	fmt.Println(x, y, z)
+	a, b, c := myTree.SearchTree(3)
+	fmt.Println(a, b, c)
 }
