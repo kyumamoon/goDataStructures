@@ -41,25 +41,23 @@ func (t *Tree) Insert(n *node) {
 }
 
 func SearchNode(n *node, target int) bool {
-	current := n
 
-	if target == current.data {
-		return true
-	} else if target > current.data {
-		if current.right != nil {
-			current = current.right
-			return SearchNode(current, target)
+	if target > n.data {
+		if n.right != nil {
+			return SearchNode(n.right, target)
 		} else {
 			return false
 		}
-	} else {
-		if current.left != nil {
-			current = current.left
-			return SearchNode(current, target)
+	} else if target < n.data {
+		if n.left != nil {
+			return SearchNode(n.left, target)
 		} else {
 			return false
 		}
 	}
+
+	return true
+
 }
 
 func (t *Tree) SearchTree(target int) bool {
@@ -73,12 +71,17 @@ func (t *Tree) SearchTree(target int) bool {
 
 func main() {
 	myTree := Tree{}
-	node1 := node{data: 100}
-	node2 := node{data: 200}
-	myTree.Insert(&node1)
-	myTree.Insert(&node2)
-	fmt.Println(myTree.root)
-	fmt.Println(myTree.root.right)
+	myTree.Insert(&node{data: 100})
+	myTree.Insert(&node{data: 52})
+	myTree.Insert(&node{data: 203})
+	myTree.Insert(&node{data: 19})
+	myTree.Insert(&node{data: 76})
+	myTree.Insert(&node{data: 150})
+	myTree.Insert(&node{data: 310})
+	myTree.Insert(&node{data: 7})
+	myTree.Insert(&node{data: 24})
+	myTree.Insert(&node{data: 88})
+	myTree.Insert(&node{data: 276})
 
-	fmt.Println(myTree.SearchTree(100))
+	fmt.Println(myTree.SearchTree(76))
 }
