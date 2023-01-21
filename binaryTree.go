@@ -70,23 +70,150 @@ func (t *Tree) SearchTree(target int) (bool, *node, *node) {
 	return SearchNode(current, nil, target)
 }
 
-func (t *Tree) DeleteNode(target int) {
+func SearchNodeBranchForEmpty(n *node) *node {
+	if n.left == nil && n.right == nil {
+		return n
+	} else {
 
+		return SearchNodeBranchForEmpty(n.right)
+
+	}
+}
+
+func (t *Tree) DeleteNode(target, targetParent *node) {
+
+	if targetParent == nil {
+		// Deleting Head
+
+		// (PLAN)
+		// First search left child node's right branch for child (with no children) with a value greater than its value.
+		// Else, search right child node's left branch for child (with no children).
+
+		// Check if head node has any children.
+		if target.left != nil && target.right != nil {
+			// If both are branches are not empty.
+
+			current := target.left
+
+			childlessChild := SearchNodeBranchForEmpty(current)
+
+			t.root = childlessChild
+			// Replace deletion with childlessChild
+
+		} else {
+			// Make either left or right branch node the new root.
+			if target.left != nil {
+				t.root = target.left
+			} else {
+				t.root = target.right
+			}
+		}
+
+	} else {
+		// If not head
+		// Figure out whether target is on left or right side of parent.
+		targetLeftRight := 0
+
+		{
+			if target.data > targetParent.data {
+				targetLeftRight = 1
+			} else {
+				targetLeftRight = 0
+			}
+		}
+
+		// Proceed with plan
+
+		// Check if target has any children.
+		// If target has two children.
+		if target.left != nil && target.right != nil {
+
+			current := target.left
+
+			childlessChild := SearchNodeBranchForEmpty(current)
+
+			if targetLeftRight == 0 {
+				targetParent.left = childlessChild
+				childlessChild.left = target.left
+
+			} else {
+				targetParent.right = childlessChild
+				childlessChild.left = target.left
+			}
+			// Replace deletion with childlessChild
+
+		} else {
+			// Target has an empty left or right child
+			// Make either left or right branch node the new root.
+			if target.left != nil {
+				if targetLeftRight == 0 {
+					targetParent.left = target.left
+				} else {
+					targetParent.right = target.left
+				}
+			} else {
+				if targetLeftRight == 0 {
+					targetParent.left = target.right
+				} else {
+					targetParent.right = target.right
+				}
+			}
+		}
+
+		/*if target.left == nil || target.right == nil {
+		  	// Make either left or right branch node the new root.
+		  	if target.left != nil {
+		  		if targetLeftRight == 0 {
+		  			targetParent.left = target.left
+		  		} else {
+		  			targetParent.right = target.left
+		  		}
+		  	} else {
+		  		if targetLeftRight == 0 {
+		  			targetParent.left = target.right
+		  		} else {
+		  			targetParent.right = target.right
+		  		}
+		  	}
+		  } else if target.left != nil && target.right != nil {
+		  	// Do plan if target has two children.
+
+		  	current := target.left
+
+		  	childlessChild := SearchNodeBranchForEmpty(current)
+
+		  	if targetLeftRight == 0 {
+		  		targetParent.left = childlessChild
+
+		  	} else {
+		  		targetParent.right = childlessChild
+		  	}
+		  	// Replace deletion with childlessChild
+
+		  }*/
+	}
 }
 
 func main() {
 	myTree := Tree{}
-	myTree.Insert(&node{data: 100})
-	myTree.Insert(&node{data: 52})
-	myTree.Insert(&node{data: 203})
-	myTree.Insert(&node{data: 19})
-	myTree.Insert(&node{data: 76})
-	myTree.Insert(&node{data: 150})
-	myTree.Insert(&node{data: 310})
-	myTree.Insert(&node{data: 7})
-	myTree.Insert(&node{data: 24})
+	myTree.Insert(&node{data: 44})
+	myTree.Insert(&node{data: 17})
+	myTree.Insert(&node{data: 32})
+	myTree.Insert(&node{data: 28})
+	myTree.Insert(&node{data: 29})
 	myTree.Insert(&node{data: 88})
-	myTree.Insert(&node{data: 276})
+	myTree.Insert(&node{data: 65})
+	myTree.Insert(&node{data: 54})
+	myTree.Insert(&node{data: 82})
+	myTree.Insert(&node{data: 76})
+	myTree.Insert(&node{data: 80})
+	myTree.Insert(&node{data: 78})
+	myTree.Insert(&node{data: 97})
 
-	fmt.Println(myTree.SearchTree(0))
+	x, y, z := myTree.SearchTree(32)
+	fmt.Println(x, y, z)
+	myTree.DeleteNode(y, z)
+
+	x, y, z = myTree.SearchTree(28)
+	fmt.Println(x, y, z)
 }
